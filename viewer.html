@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Имоти Агрегатор — Шумен & Варна</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --card-hover: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0284c7;
+      --green: #059669;
+      --amber: #d97706;
+      --purple: #7c3aed;
+      --shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    .container { max-width: 1360px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; }
+    header h1 span { color: var(--accent); }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .updated { color: var(--muted); font-size: 0.85rem; }
+    .scrape-btn {
+      background: var(--accent); color: #ffffff; border: none; border-radius: 10px;
+      padding: 8px 14px; font-size: 0.86rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25); transition: background 0.15s, opacity 0.15s;
+    }
+    .scrape-btn:hover { background: #0369a1; }
+    .scrape-btn:disabled { opacity: 0.65; cursor: wait; }
+    .scrape-status { font-size: 0.8rem; color: var(--muted); }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px; margin-bottom: 18px;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; box-shadow: var(--shadow);
+    }
+    .stat-label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+    .stat-val { font-size: 1.65rem; font-weight: 800; margin-top: 4px; color: var(--text); }
+    .stat-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .filters {
+      display: flex; flex-direction: column; gap: 12px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow);
+    }
+    .filter-row {
+      display: grid; gap: 10px;
+    }
+    .filter-row.loc-row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .filter-row.param-row {
+      grid-template-columns: 1.8fr 1fr 0.75fr 0.75fr 1fr 1.1fr;
+    }
+    .field {
+      display: flex; flex-direction: column; gap: 4px; min-width: 0;
+    }
+    .field label {
+      font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.04em; padding-left: 2px;
+    }
+    .filters input, .filters select {
+      width: 100%; min-width: 0;
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; height: 38px;
+      transition: border-color 0.15s;
+    }
+    .filters input:focus, .filters select:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .filter-actions {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 10px; padding-top: 8px; border-top: 1px solid var(--border);
+    }
+    .ccb-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px;
+      padding: 5px 10px; font-size: 0.8rem; color: #065f46;
+    }
+    .ccb-bar strong { font-weight: 700; white-space: nowrap; }
+    .ccb-bar label { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+    .ccb-bar input {
+      width: 58px !important; height: 28px !important; padding: 3px 6px !important;
+      font-size: 0.8rem !important; border-color: #6ee7b7 !important; background: #fff !important;
+      text-align: center;
+    }
+    .mortgage-pill {
+      display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+      background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;
+      border-radius: 8px; padding: 3px 8px; font-size: 0.78rem; font-weight: 600;
+    }
+    .mortgage-pill span { color: #065f46; font-weight: 400; font-size: 0.73rem; }
+    .toggle-btn {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px; font-size: 0.85rem; cursor: pointer;
+      font-weight: 500; transition: border-color 0.15s, background 0.15s;
+    }
+    .toggle-btn:hover { border-color: var(--accent); background: #eff6ff; }
+    .toggle-btn.active {
+      background: rgba(124, 58, 237, 0.12); border-color: var(--purple); color: var(--purple);
+      font-weight: 600;
+    }
+    .toggle-btn.reset-btn {
+      color: #dc2626; border-color: #fecaca; background: #fef2f2;
+    }
+    .toggle-btn.reset-btn:hover {
+      background: #fee2e2; border-color: #ef4444;
+    }
+    @media (max-width: 960px) {
+      .filter-row.loc-row, .filter-row.param-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 560px) {
+      .filter-row.loc-row, .filter-row.param-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .sources-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px 14px; margin-bottom: 16px; box-shadow: var(--shadow);
+    }
+    .sources-bar-title {
+      font-size: 0.78rem; color: var(--muted); text-transform: uppercase; font-weight: 600;
+      letter-spacing: 0.04em; margin-right: 4px;
+    }
+    .source-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 6px 10px; font-size: 0.84rem;
+    }
+    .source-chip.selected { border-color: var(--accent); background: #e0f2fe; }
+    .source-filter-btn {
+      background: none; border: none; color: var(--text); font-weight: 600;
+      cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .source-count {
+      font-size: 0.75rem; color: var(--muted); font-weight: 500;
+    }
+    .source-ext-link {
+      color: var(--accent); text-decoration: none; font-size: 0.78rem; font-weight: 600;
+      padding: 3px 8px; border-radius: 6px; background: #e0f2fe;
+      white-space: nowrap;
+    }
+    .source-ext-link:hover { background: #bae6fd; }
+    .results-info { color: var(--muted); font-size: 0.88rem; margin-bottom: 12px; font-weight: 500; }
+
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
+      box-shadow: var(--shadow); transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08); }
+    .card.merged { border-color: rgba(124, 58, 237, 0.45); }
+    .thumb-wrap {
+      position: relative; height: 195px; background: #e2e8f0; overflow: hidden;
+    }
+    .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-nav {
+      position: absolute; bottom: 8px; right: 8px; display: flex; align-items: center; gap: 4px;
+      background: rgba(255, 255, 255, 0.92); color: var(--text); padding: 2px 7px;
+      border-radius: 999px; font-size: 0.72rem; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .img-nav button {
+      background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.95rem;
+      padding: 0 4px; line-height: 1; font-weight: 700;
+    }
+    .img-nav button:hover { color: var(--accent); }
+    .no-img {
+      height: 100%; display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 0.85rem;
+    }
+    .badges {
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .badge {
+      font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94); color: var(--text);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .badge.shumen { border: 1px solid #bae6fd; color: var(--accent); }
+    .badge.varna { border: 1px solid #a7f3d0; color: var(--green); }
+    .badge.merged-badge { background: var(--purple); color: #ffffff; border: none; }
+
+    .card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .price-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .price { font-size: 1.25rem; font-weight: 700; color: var(--amber); }
+    .meta-inline { font-size: 0.82rem; color: var(--muted); }
+    .title { font-size: 0.98rem; font-weight: 600; color: var(--text); }
+    .location { font-size: 0.84rem; color: var(--accent); }
+    .desc { font-size: 0.82rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .links-box {
+      margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .links-title { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .offer-link {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; text-decoration: none; color: var(--text); font-size: 0.82rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .offer-link:hover { background: var(--card-hover); border-color: var(--accent); }
+    .offer-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .src-tag {
+      font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 6px;
+      background: #e0f2fe; color: var(--accent); white-space: nowrap;
+    }
+    .src-tag.imot { background: #d1fae5; color: var(--green); }
+    .agency-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .offer-date { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+    .offer-right { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .offer-price { font-weight: 600; color: var(--amber); white-space: nowrap; }
+    .reasons { font-size: 0.72rem; color: var(--purple); }
+
+    /* Detail & side-by-side comparison modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px); z-index: 1000;
+      display: none; align-items: center; justify-content: center; padding: 18px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 16px; width: 100%; max-width: 1180px; max-height: 90vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+      padding: 16px 20px; border-bottom: 1px solid var(--border); background: #f8fafc;
+    }
+    .modal-header h2 { font-size: 1.15rem; font-weight: 800; }
+    .modal-sub { font-size: 0.84rem; color: var(--muted); margin-top: 2px; }
+    .modal-close {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; color: var(--text);
+      flex-shrink: 0;
+    }
+    .modal-close:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    .modal-body {
+      padding: 18px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+      flex: 1; min-height: 0;
+    }
+    .modal-body > * { flex-shrink: 0; }
+    .modal-gallery {
+      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; min-height: 162px;
+    }
+    .modal-gallery img {
+      height: 150px; width: 210px; object-fit: cover; border-radius: 10px;
+      border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .diff-legend {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 0.8rem; color: var(--muted);
+    }
+    .legend-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 6px; font-weight: 600;
+    }
+    .legend-pill.diff { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .legend-pill.best { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
+    .cmp-wrap {
+      overflow-x: auto; overflow-y: visible; border: 1px solid var(--border); border-radius: 12px;
+      background: #fff;
+    }
+    .modal-body::-webkit-scrollbar, .modal-gallery::-webkit-scrollbar, .cmp-wrap::-webkit-scrollbar, .lb-thumbs::-webkit-scrollbar {
+      height: 7px; width: 7px;
+    }
+    .modal-body::-webkit-scrollbar-track, .modal-gallery::-webkit-scrollbar-track, .cmp-wrap::-webkit-scrollbar-track {
+      background: #f1f5f9; border-radius: 999px;
+    }
+    .modal-body::-webkit-scrollbar-thumb, .modal-gallery::-webkit-scrollbar-thumb, .cmp-wrap::-webkit-scrollbar-thumb {
+      background: #cbd5e1; border-radius: 999px;
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover, .modal-gallery::-webkit-scrollbar-thumb:hover, .cmp-wrap::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .cmp-table th, .cmp-table td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+      text-align: left; vertical-align: top; min-width: 190px;
+    }
+    .cmp-table th:first-child, .cmp-table td:first-child {
+      position: sticky; left: 0; background: #f8fafc; font-weight: 700; color: var(--muted);
+      min-width: 145px; max-width: 165px; z-index: 2;
+    }
+    .cmp-table thead th { background: #f1f5f9; font-weight: 700; color: var(--text); }
+    .cmp-table tr.row-diff td { background: #fffbeb; }
+    .cmp-table tr.row-diff td:first-child { background: #fef3c7; color: #92400e; }
+    .cmp-table td.cell-best { background: #ecfdf5 !important; color: #047857; font-weight: 700; }
+    .diff-tag {
+      display: inline-block; margin-left: 4px; font-size: 0.68rem; font-weight: 700;
+      padding: 1px 5px; border-radius: 4px; background: #f59e0b; color: #fff;
+    }
+    .cmp-desc { font-size: 0.78rem; color: var(--muted); max-width: 280px; white-space: normal; }
+    .cmp-open-btn {
+      display: inline-block; padding: 5px 10px; border-radius: 7px; text-decoration: none;
+      background: var(--accent); color: #fff; font-weight: 600; font-size: 0.78rem;
+    }
+    .cmp-open-btn:hover { background: #0369a1; }
+    .cmp-photo-cell { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+    .cmp-mini-thumb {
+      width: 110px; height: 74px; object-fit: cover; border-radius: 7px;
+      border: 1px solid var(--border); cursor: pointer;
+    }
+    .cmp-photo-btn {
+      background: #e0f2fe; color: var(--accent); border: 1px solid #bae6fd;
+      border-radius: 7px; padding: 4px 9px; font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    }
+    .cmp-photo-btn:hover { background: #bae6fd; }
+
+    /* Full closing cost breakdown card inside detail modal */
+    .cost-box {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .cost-head {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .cost-head h3 { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+    .cost-toggle {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); cursor: pointer;
+    }
+    .cost-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;
+    }
+    .cost-item {
+      background: #fff; border: 1px solid var(--border); border-radius: 9px;
+      padding: 8px 11px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+      font-size: 0.82rem;
+    }
+    .cost-item .c-lbl { color: var(--muted); }
+    .cost-item .c-val { font-weight: 700; color: var(--text); white-space: nowrap; }
+    .cost-totals {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;
+      padding-top: 8px; border-top: 1px dashed var(--border);
+    }
+    .cost-total-card {
+      border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); background: #fff;
+    }
+    .cost-total-card.cash { background: #fffbeb; border-color: #fcd34d; }
+    .cost-total-card.final { background: #ecfdf5; border-color: #6ee7b7; }
+    .cost-total-card .t-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 700; }
+    .cost-total-card .t-val { font-size: 1.15rem; font-weight: 800; margin-top: 2px; color: var(--text); }
+    .cost-total-card.cash .t-val { color: #b45309; }
+    .cost-total-card.final .t-val { color: #047857; }
+    .cost-total-card .t-sub { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+
+    /* Lightbox gallery viewer */
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9);
+      z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px; gap: 12px;
+    }
+    .lightbox.open { display: flex; }
+    .lb-main {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      max-width: 92vw; max-height: 70vh;
+    }
+    .lb-main img {
+      max-width: 86vw; max-height: 68vh; border-radius: 10px; object-fit: contain;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5); background: #0f172a;
+    }
+    .lb-source-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(15, 23, 42, 0.85); color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+      backdrop-filter: blur(4px);
+    }
+    .lb-tabs {
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 90vw;
+    }
+    .lb-tab {
+      background: rgba(255,255,255,0.12); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    }
+    .lb-tab:hover { background: rgba(255,255,255,0.22); }
+    .lb-tab.active { background: #0284c7; color: #fff; border-color: #38bdf8; }
+    .lb-thumb-wrap { position: relative; flex-shrink: 0; }
+    .lb-thumb-tag {
+      position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center;
+      background: rgba(15,23,42,0.8); color: #e2e8f0; font-size: 0.58rem; font-weight: 700;
+      border-radius: 3px; padding: 1px 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      pointer-events: none;
+    }
+    .lb-arrow {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.16); color: #fff; border: none; border-radius: 50%;
+      width: 46px; height: 46px; font-size: 1.6rem; cursor: pointer;
+    }
+    .lb-arrow:hover { background: rgba(255,255,255,0.3); }
+    .lb-prev { left: 18px; }
+    .lb-next { right: 18px; }
+    .lb-close {
+      position: fixed; top: 16px; right: 20px; background: rgba(255,255,255,0.16);
+      color: #fff; border: none; border-radius: 10px; width: 40px; height: 40px;
+      font-size: 1.2rem; cursor: pointer;
+    }
+    .lb-close:hover { background: #ef4444; }
+    .lb-caption { color: #e2e8f0; font-size: 0.88rem; font-weight: 600; }
+    .lb-thumbs {
+      display: flex; gap: 6px; overflow-x: auto; max-width: 90vw; padding: 4px;
+    }
+    .lb-thumbs img {
+      width: 64px; height: 46px; object-fit: cover; border-radius: 6px;
+      opacity: 0.55; cursor: pointer; border: 2px solid transparent; flex-shrink: 0;
+    }
+    .lb-thumbs img.active { opacity: 1; border-color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Имоти Агрегатор <span>Шумен &amp; Варна</span></h1>
+      <div class="header-right">
+        <span class="scrape-status" id="scrapeStatus"></span>
+        <button class="scrape-btn" id="scrapeBtn" type="button">🔄 Обнови обявите</button>
+        <div class="updated" id="updatedAt">Зареждане...</div>
+      </div>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="filters">
+      <div class="filter-row loc-row">
+        <div class="field">
+          <label for="region">Област</label>
+          <select id="region">
+            <option value="">Всички области</option>
+            <option value="shumen">Област Шумен</option>
+            <option value="varna">Област Варна</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="municipality">Община</label>
+          <select id="municipality">
+            <option value="">Всички общини</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="city">Град / Село</label>
+          <select id="city">
+            <option value="">Всички градове / села</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="neighborhood">Квартал / Местност</label>
+          <select id="neighborhood">
+            <option value="">Всички квартали</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-row param-row">
+        <div class="field">
+          <label for="q">Търсене</label>
+          <input type="search" id="q" placeholder="Квартал, агенция, описание, цена..." />
+        </div>
+        <div class="field">
+          <label for="propType">Тип имот</label>
+          <select id="propType">
+            <option value="">Всички типове</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="minPrice">Цена от (€)</label>
+          <input type="number" id="minPrice" placeholder="Мин. €" />
+        </div>
+        <div class="field">
+          <label for="maxPrice">Цена до (€)</label>
+          <input type="number" id="maxPrice" placeholder="Макс. €" />
+        </div>
+        <div class="field">
+          <label for="maxAge">Възраст на обявата</label>
+          <select id="maxAge">
+            <option value="">Всички дати</option>
+            <option value="1">До 24 часа</option>
+            <option value="7">До 7 дни</option>
+            <option value="14">До 14 дни</option>
+            <option value="30">До 30 дни</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sortBy">Сортиране</label>
+          <select id="sortBy">
+            <option value="merged">Сляти дубликати първо</option>
+            <option value="newest">Най-нови първо</option>
+            <option value="price_asc">Цена ↑</option>
+            <option value="price_desc">Цена ↓</option>
+            <option value="area_desc">Площ ↓</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+          <button class="toggle-btn" id="onlyMerged">Само сляти дубликати</button>
+          <div class="ccb-bar" title="Ориентировъчен ипотечен калкулатор по условия на ЦКБ „Дом за теб“">
+            <strong>🏦 ЦКБ кредит:</strong>
+            <label>Самоуч. <input type="number" id="ccbDown" value="15" min="0" max="80" step="1" />%</label>
+            <label>Лихва <input type="number" id="ccbRate" value="2.8" min="0.5" max="15" step="0.1" />%</label>
+            <label>Срок <input type="number" id="ccbYears" value="30" min="5" max="35" step="1" />г.</label>
+          </div>
+        </div>
+        <button class="toggle-btn reset-btn" id="resetFilters">✕ Изчисти филтрите</button>
+      </div>
+    </section>
+
+    <section class="sources-bar" id="sourcesBar"></section>
+
+    <div class="results-info" id="resultsInfo"></div>
+    <main class="grid" id="grid"></main>
+  </div>
+
+  <div class="modal-backdrop" id="detailModal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">Детайли за имота</h2>
+          <div class="modal-sub" id="modalSub"></div>
+        </div>
+        <button class="modal-close" id="modalClose" type="button" title="Затвори (Esc)">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lbClose" type="button" title="Затвори (Esc)">✕</button>
+    <div class="lb-tabs" id="lbTabs"></div>
+    <button class="lb-arrow lb-prev" id="lbPrev" type="button">‹</button>
+    <div class="lb-main">
+      <span class="lb-source-badge" id="lbBadge"></span>
+      <img id="lbImg" src="" alt="" />
+    </div>
+    <button class="lb-arrow lb-next" id="lbNext" type="button">›</button>
+    <div class="lb-caption" id="lbCaption"></div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+  </div>
+
+  <script>
+    const FILTERS_STORAGE_KEY = "imoti_aggregator_filters_v1";
+    let allProperties = [];
+    let referenceNeighborhoods = {};
+    let onlyMerged = false;
+    let selectedSource = "";
+
+    function saveFilters() {
+      const state = {
+        q: document.getElementById("q").value,
+        region: document.getElementById("region").value,
+        municipality: document.getElementById("municipality").value,
+        city: document.getElementById("city").value,
+        neighborhood: document.getElementById("neighborhood").value,
+        propType: document.getElementById("propType").value,
+        minPrice: document.getElementById("minPrice").value,
+        maxPrice: document.getElementById("maxPrice").value,
+        maxAge: document.getElementById("maxAge").value,
+        sortBy: document.getElementById("sortBy").value,
+        onlyMerged,
+        selectedSource,
+        ccbDown: document.getElementById("ccbDown").value,
+        ccbRate: document.getElementById("ccbRate").value,
+        ccbYears: document.getElementById("ccbYears").value,
+      };
+      try { localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+    }
+
+    function restoreFilters() {
+      try {
+        const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        if (s.q != null) document.getElementById("q").value = s.q;
+        if (s.region) document.getElementById("region").value = s.region;
+        updateCascadeOptions("region");
+        if (s.municipality) document.getElementById("municipality").value = s.municipality;
+        updateCascadeOptions("municipality");
+        if (s.city) document.getElementById("city").value = s.city;
+        updateCascadeOptions("city");
+        if (s.neighborhood) document.getElementById("neighborhood").value = s.neighborhood;
+        if (s.propType) document.getElementById("propType").value = s.propType;
+        if (s.minPrice != null) document.getElementById("minPrice").value = s.minPrice;
+        if (s.maxPrice != null) document.getElementById("maxPrice").value = s.maxPrice;
+        if (s.maxAge != null) document.getElementById("maxAge").value = s.maxAge;
+        if (s.sortBy) document.getElementById("sortBy").value = s.sortBy;
+        onlyMerged = Boolean(s.onlyMerged);
+        selectedSource = s.selectedSource || "";
+        if (s.ccbDown != null) document.getElementById("ccbDown").value = s.ccbDown;
+        if (s.ccbRate != null) document.getElementById("ccbRate").value = s.ccbRate;
+        if (s.ccbYears != null) document.getElementById("ccbYears").value = s.ccbYears;
+        document.getElementById("onlyMerged").classList.toggle("active", onlyMerged);
+      } catch (_) {}
+    }
+
+    const SITE_CATALOG = ["alo.bg", "imot.bg", "olx.bg", "bazar.bg", "imoti.net", "imotisilvi.bg", "imotitomov.com"];
+
+    // Verified alo.bg location_ids & section_ids (Shumen & Varna)
+    const ALO_LOCATION_IDS = {
+      "шумен": "5191", "нови пазар": "5137", "велики преслав": "5151", "смядово": "5161",
+      "каспичан": "5104", "мадара": "5123",
+      "варна": "554", "бяла": "553", "златни пясъци": "5554",
+      "св. св. константин и елена": "5555", "ален мак": "5559", "слънчев ден": "5557",
+      "кабакум": "5572", "шкорпиловци": "687", "провадия": "650", "девня": "573",
+      "приселци": "649", "звездица": "591", "камчия": "5556", "близнаци": "542",
+      "осеново": "642", "синдел": "663", "езерово": "587", "долни чифлик": "581",
+      "вълчи дол": "562", "белослав": "540", "тополи": "677", "аксаково": "535",
+    };
+
+    const ALO_SECTION_IDS = {
+      shumen: {
+        "център": "685", "шив": "685", "дивдядово": "666", "добруджански": "667", "добруджа": "667",
+        "военно училище": "918", "под манастира": "677", "куршун чешма": "920", "пожарната": "923",
+        "томбул джамия": "924", "чашка": "686", "гривица": "665", "боян българанов": "658",
+        "боян българанов 1": "657", "боян българанов 2": "658", "басейна": "917", "макак": "929",
+        "математическа гимназия": "921", "болницата": "656", "окръжна болница": "656",
+        "топхане": "682", "5-ти полк": "676", "мътница": "930", "тракия": "683", "пазара": "922",
+        "еверест": "668", "2-ри корпус на университета": "916", "бялата пръст": "663",
+        "индустриална зона": "669", "промишлена зона": "669", "херсон": "684",
+        "дивизионна болница": "919", "студентски общежития": "681",
+      },
+      varna: {
+        "траката": "742", "виница": "38", "боровец": "729", "зеленика": "731", "аспарухово": "36",
+        "център": "72", "акчелар": "725", "прибой": "736", "свети никола": "739", "св. никола": "739",
+        "евксиноград": "730", "галата": "43", "изгрев": "51", "пчелина": "737",
+        "гръцка махала": "44", "гръцки квартал": "44", "сълзица": "741", "трошево": "68",
+        "бриз": "37", "колхозен пазар": "53", "ракитника": "738", "сотира": "740",
+        "възраждане": "42", "възраждане 1": "42", "възраждане 2": "42", "възраждане 3": "42", "възраждане 4": "42",
+        "христо ботев": "70", "автогарата": "34", "цветен квартал": "71", "цветен": "71",
+        "ментешето": "734", "морска градина": "58", "кочмар": "733", "фичоза": "743",
+        "планова": "735", "левски": "54", "погребите": "65", "общината": "61", "максуда": "750",
+        "винс": "39", "кайсиева градина": "52", "червен площад": "75", "хеи": "69",
+        "южна промишлена зона": "77", "военна болница": "41", "владислав варненчик": "40",
+        "владиславово": "40", "младост": "57", "младост 1": "57", "младост 2": "57",
+        "гранд мол варна": "749", "чайка": "73", "победа": "64", "окръжна болница": "62",
+        "чаталджа": "74", "спортна зала": "66", "нептун": "59", "генералите": "746",
+        "жп гара": "46", "западна промишлена зона": "48", "електрон": "45",
+      },
+    };
+
+    function _normKey(s) {
+      return (s || "").toLowerCase().replace(/^(?:гр\.?|с\.?|кв\.?|ж\.?к\.?|м\.?|местност)\s+/i, "").trim();
+    }
+
+    function buildExternalSearchUrl(site, f) {
+      const pt = (f.propType || "").trim().toLowerCase();
+      if (site === "alo.bg") {
+        let cat = "/obiavi/imoti-prodajbi/apartamenti-stai/";
+        if (pt === "къща" || pt.includes("къщ")) cat = "/obiavi/imoti-prodajbi/kashti-vili/";
+        else if (pt === "парцел" || pt.includes("парцел")) cat = "/obiavi/imoti-prodajbi/parceli-zemia/";
+        else if (pt === "гараж" || pt.includes("гараж")) cat = "/obiavi/imoti-prodajbi/garaji-parkomesta/";
+        else if (pt === "бизнес-имот" || pt.includes("бизнес")) cat = "/obiavi/imoti-prodajbi/magazini-ofisi-skladove/";
+
+        const params = new URLSearchParams();
+        const inferredRegion = f.region || (f.city === "Шумен" ? "shumen" : f.city === "Варна" ? "varna" : "");
+        if (inferredRegion === "shumen") params.set("region_id", "26");
+        else if (inferredRegion === "varna") params.set("region_id", "3");
+
+        const nbKey = _normKey(f.neighborhood);
+        const cityKey = _normKey(f.city);
+
+        // If neighborhood is selected, resolve its real alo.bg section_ids (and required city location_ids)
+        let secId = "";
+        let secRegion = inferredRegion;
+        if (nbKey) {
+          if (secRegion && ALO_SECTION_IDS[secRegion]?.[nbKey]) {
+            secId = ALO_SECTION_IDS[secRegion][nbKey];
+          } else if (ALO_SECTION_IDS.shumen[nbKey]) {
+            secId = ALO_SECTION_IDS.shumen[nbKey];
+            secRegion = "shumen";
+          } else if (ALO_SECTION_IDS.varna[nbKey]) {
+            secId = ALO_SECTION_IDS.varna[nbKey];
+            secRegion = "varna";
+          }
+        }
+
+        if (secId) {
+          params.set("region_id", secRegion === "shumen" ? "26" : "3");
+          params.set("location_ids", secRegion === "shumen" ? "5191" : "554");
+          params.set("section_ids", secId);
+        } else if (cityKey && ALO_LOCATION_IDS[cityKey]) {
+          params.set("location_ids", ALO_LOCATION_IDS[cityKey]);
+        }
+
+        const qs = params.toString();
+        return `https://www.alo.bg${cat}${qs ? "?" + qs : ""}`;
+      }
+
+      if (site === "imot.bg") {
+        let locSlug = "oblast-varna";
+        if (f.city === "Шумен") locSlug = "grad-shumen";
+        else if (f.city === "Варна") locSlug = "grad-varna";
+        else if (f.region === "shumen") locSlug = "oblast-shumen";
+        else if (f.region === "varna") locSlug = "oblast-varna";
+        else locSlug = "";
+
+        const typeMap = {
+          "1-стаен": "ednostaen",
+          "2-стаен": "dvustaen",
+          "3-стаен": "tristaen",
+          "4-стаен": "chetiristaen",
+          "многостаен": "mnogostaen",
+          "къща": "kashta",
+          "парцел": "partsel",
+          "гараж": "garazh",
+        };
+        const typeSlug = typeMap[f.propType] || "";
+        const pathParts = ["https://www.imot.bg/obiavi/prodazhbi", locSlug, typeSlug].filter(Boolean);
+        return pathParts.join("/");
+      }
+
+      if (site === "olx.bg") {
+        let cat = "prodazhbi";
+        if (pt === "къща" || pt.includes("къщ")) cat = "prodazhbi/kashti-vili";
+        else if (pt.includes("стаен") || pt === "апартамент") cat = "prodazhbi/apartamenti";
+        else if (pt === "парцел") cat = "prodazhbi/partseli-zemi";
+        const regSlug = f.region === "shumen" ? "oblast-shumen" : f.region === "varna" ? "oblast-varna" : "";
+        const base = regSlug ? `https://www.olx.bg/nedvizhimi-imoti/${cat}/${regSlug}/` : `https://www.olx.bg/nedvizhimi-imoti/${cat}/`;
+        const params = new URLSearchParams();
+        if (!isNaN(f.minP)) params.set("search[filter_float_price:from]", Math.round(f.minP));
+        if (!isNaN(f.maxP)) params.set("search[filter_float_price:to]", Math.round(f.maxP));
+        const qs = params.toString();
+        return `${base}${qs ? "?" + qs : ""}`;
+      }
+
+      if (site === "bazar.bg") {
+        let cat = "prodazhba-imoti";
+        if (pt === "къща" || pt.includes("къщ")) cat = "kashti-vili";
+        else if (pt.includes("стаен") || pt === "апартамент") cat = "apartamenti";
+        const regSlug = f.region === "shumen" ? "shumen" : f.region === "varna" ? "varna" : "";
+        const base = regSlug ? `https://bazar.bg/obiavi/${cat}/${regSlug}` : `https://bazar.bg/obiavi/${cat}`;
+        const params = new URLSearchParams();
+        if (!isNaN(f.minP)) params.set("price_from", Math.round(f.minP));
+        if (!isNaN(f.maxP)) params.set("price_to", Math.round(f.maxP));
+        const qs = params.toString();
+        return `${base}${qs ? "?" + qs : ""}`;
+      }
+
+      if (site === "imoti.net") {
+        const regSlug = f.region === "shumen" ? "shumen" : f.region === "varna" ? "varna" : "bulgaria";
+        const params = new URLSearchParams();
+        if (!isNaN(f.minP)) params.set("price_from", Math.round(f.minP));
+        if (!isNaN(f.maxP)) params.set("price_to", Math.round(f.maxP));
+        const qs = params.toString();
+        return `https://www.imoti.net/bg/obiavi/r/prodava/${regSlug}${qs ? "?" + qs : ""}`;
+      }
+
+      if (site === "imotisilvi.bg") {
+        return "https://imotisilvi.bg/properties.php?type=sale";
+      }
+
+      if (site === "imotitomov.com") {
+        return "https://imotitomov.com/status/for-sale/";
+      }
+
+      return "#";
+    }
+
+    function renderSourcesBar(baseFilteredList, filters) {
+      const counts = {};
+      SITE_CATALOG.forEach(s => counts[s] = 0);
+      baseFilteredList.forEach(p => {
+        (p.sources || []).forEach(s => {
+          counts[s] = (counts[s] || 0) + 1;
+        });
+      });
+
+      const bar = document.getElementById("sourcesBar");
+      const chips = Object.keys(counts).map(site => {
+        const isSel = selectedSource === site;
+        const extUrl = buildExternalSearchUrl(site, filters);
+        return `
+          <div class="source-chip ${isSel ? "selected" : ""}">
+            <button class="source-filter-btn" data-source="${site}" title="Филтрирай само от ${site}">
+              <span>${site}</span>
+              <span class="source-count">(${counts[site]})</span>
+            </button>
+            <a class="source-ext-link" href="${extUrl}" target="_blank" rel="noopener noreferrer" title="Отвори ${site} с текущите филтри">
+              Отвори с филтрите ↗
+            </a>
+          </div>
+        `;
+      }).join("");
+
+      bar.innerHTML = `<span class="sources-bar-title">Сайтове &amp; директни линкове:</span>${chips}`;
+      bar.querySelectorAll(".source-filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const s = btn.getAttribute("data-source");
+          selectedSource = selectedSource === s ? "" : s;
+          renderGrid();
+        });
+      });
+    }
+
+    const fmtEur = (v) => v == null ? "По договаряне" : new Intl.NumberFormat("bg-BG").format(Math.round(v)) + " €";
+
+    function calcCcbMortgage(priceEur) {
+      if (priceEur == null || priceEur <= 0) return null;
+      const downPct = Math.max(0, Math.min(90, parseFloat(document.getElementById("ccbDown")?.value ?? "15") || 0));
+      const annualRate = Math.max(0.1, parseFloat(document.getElementById("ccbRate")?.value ?? "2.8") || 2.8);
+      const years = Math.max(1, Math.min(35, parseInt(document.getElementById("ccbYears")?.value ?? "30", 10) || 30));
+      const downEur = priceEur * (downPct / 100);
+      const loanEur = priceEur - downEur;
+      const r = (annualRate / 100) / 12;
+      const n = years * 12;
+      const monthly = loanEur * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      return {
+        monthly: Math.round(monthly),
+        downEur: Math.round(downEur),
+        loanEur: Math.round(loanEur),
+        totalPaid: Math.round(monthly * n),
+        downPct,
+        annualRate,
+        years,
+      };
+    }
+
+    function renderStats(summary) {
+      const cards = [
+        { label: "Уникални имоти", val: summary.unique_properties, sub: `от ${summary.total_raw_listings} сурови обяви` },
+        { label: "Сляти дубликати", val: summary.merged_properties_count, sub: `${summary.cross_site_merged_count} между сайтове · ${summary.multi_agency_merged_count} агенции` },
+        { label: "Област Шумен", val: summary.by_region?.shumen ?? 0, sub: "уникални имота" },
+        { label: "Област Варна", val: summary.by_region?.varna ?? 0, sub: "уникални имота" },
+      ];
+      document.getElementById("stats").innerHTML = cards.map(c => `
+        <div class="stat-card">
+          <div class="stat-label">${c.label}</div>
+          <div class="stat-val">${c.val}</div>
+          <div class="stat-sub">${c.sub}</div>
+        </div>
+      `).join("");
+    }
+
+    function populateSelect(id, placeholder, valuesWithCounts, preserveValue) {
+      const sel = document.getElementById(id);
+      const prev = preserveValue ? sel.value : "";
+      sel.innerHTML = `<option value="">${placeholder}</option>`;
+      valuesWithCounts.forEach(([val, count]) => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = `${val} (${count})`;
+        sel.appendChild(opt);
+      });
+      if (prev && valuesWithCounts.some(([val]) => val === prev)) {
+        sel.value = prev;
+      } else {
+        sel.value = "";
+      }
+    }
+
+    function countBy(items, field) {
+      const map = new Map();
+      items.forEach(item => {
+        const v = (item[field] || "").trim();
+        if (v) map.set(v, (map.get(v) || 0) + 1);
+      });
+      return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "bg"));
+    }
+
+    function updateCascadeOptions(changedLevel) {
+      const region = document.getElementById("region").value;
+      const byRegion = region ? allProperties.filter(p => p.region === region) : allProperties;
+
+      if (changedLevel === "init" || changedLevel === "region") {
+        populateSelect("municipality", "Всички общини", countBy(byRegion, "municipality"), changedLevel !== "region");
+      }
+      const municipality = document.getElementById("municipality").value;
+      const byMun = municipality ? byRegion.filter(p => p.municipality === municipality) : byRegion;
+
+      if (changedLevel === "init" || changedLevel === "region" || changedLevel === "municipality") {
+        populateSelect("city", "Всички градове / села", countBy(byMun, "city"), changedLevel === "init");
+      }
+      const city = document.getElementById("city").value;
+      const byCity = city ? byMun.filter(p => p.city === city) : byMun;
+
+      // Combine live counts with full reference neighborhood catalog so all neighborhoods (e.g. Дивдядово) are always listed
+      const nbMap = new Map(countBy(byCity, "neighborhood"));
+      const refCities = city
+        ? [city]
+        : (region === "shumen" ? ["Шумен"] : region === "varna" ? ["Варна"] : Object.keys(referenceNeighborhoods));
+      refCities.forEach(cName => {
+        (referenceNeighborhoods[cName] || []).forEach(nb => {
+          if (!nbMap.has(nb)) nbMap.set(nb, 0);
+        });
+      });
+      const nbEntries = [...nbMap.entries()].sort((a, b) => a[0].localeCompare(b[0], "bg"));
+      populateSelect("neighborhood", "Всички квартали", nbEntries, changedLevel === "init");
+    }
+
+    const BG_MONTHS = {
+      "яну": 0, "фев": 1, "мар": 2, "апр": 3, "май": 4, "юни": 5,
+      "юли": 6, "авг": 7, "сеп": 8, "окт": 9, "ное": 10, "дек": 11,
+    };
+
+    function parseOfferAgeDays(pub) {
+      const s = (pub || "").toLowerCase().trim();
+      if (!s) return 9999;
+      if (s.includes("днес") || s.includes("час") || s.includes("мин")) return 0;
+      if (s.includes("вчера")) return 1;
+      const mDays = s.match(/преди\s+(\d+)\+?\s*д/);
+      if (mDays) return parseInt(mDays[1], 10) + (s.includes("+") ? 1 : 0);
+      const mDate = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+      if (mDate) {
+        const dt = new Date(parseInt(mDate[3], 10), parseInt(mDate[2], 10) - 1, parseInt(mDate[1], 10));
+        return Math.max(0, Math.floor((Date.now() - dt.getTime()) / 86400000));
+      }
+      const mBg = s.match(/(\d{1,2})\s+([а-я]{3})[а-я]*(?:\s+(\d{4}))?/);
+      if (mBg && BG_MONTHS[mBg[2]] !== undefined) {
+        const now = new Date();
+        let yr = mBg[3] ? parseInt(mBg[3], 10) : now.getFullYear();
+        const dt = new Date(yr, BG_MONTHS[mBg[2]], parseInt(mBg[1], 10));
+        if (!mBg[3] && dt.getTime() > now.getTime() + 86400000) dt.setFullYear(yr - 1);
+        return Math.max(0, Math.floor((now.getTime() - dt.getTime()) / 86400000));
+      }
+      return 9999;
+    }
+
+    function propNewestAgeDays(p) {
+      const ages = (p.external_links || []).map(l => parseOfferAgeDays(l.published_raw));
+      return ages.length ? Math.min(...ages) : 9999;
+    }
+
+    function renderGrid() {
+      const q = document.getElementById("q").value.trim().toLowerCase();
+      const region = document.getElementById("region").value;
+      const municipality = document.getElementById("municipality").value;
+      const city = document.getElementById("city").value;
+      const neighborhood = document.getElementById("neighborhood").value;
+      const propType = document.getElementById("propType").value;
+      const minP = parseFloat(document.getElementById("minPrice").value);
+      const maxP = parseFloat(document.getElementById("maxPrice").value);
+      const maxAge = parseInt(document.getElementById("maxAge").value, 10);
+      const sortBy = document.getElementById("sortBy").value;
+
+      let baseList = allProperties.filter(p => {
+        if (region && p.region !== region) return false;
+        if (municipality && p.municipality !== municipality) return false;
+        if (city && p.city !== city) return false;
+        if (neighborhood && p.neighborhood !== neighborhood) return false;
+        if (propType && p.property_type !== propType) return false;
+        if (onlyMerged && !p.is_merged) return false;
+        if (!isNaN(minP) && (p.price_eur_min == null || p.price_eur_min < minP)) return false;
+        if (!isNaN(maxP) && (p.price_eur_min == null || p.price_eur_min > maxP)) return false;
+        if (!isNaN(maxAge) && propNewestAgeDays(p) > maxAge) return false;
+        if (q) {
+          const hay = [p.title, p.municipality, p.city, p.neighborhood, p.location_raw, p.description, ...(p.agencies || []), ...(p.sources || [])].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      renderSourcesBar(baseList, { q, region, municipality, city, neighborhood, propType, minP, maxP });
+
+      let list = selectedSource
+        ? baseList.filter(p => (p.sources || []).includes(selectedSource))
+        : baseList;
+
+      list.sort((a, b) => {
+        if (sortBy === "newest") return propNewestAgeDays(a) - propNewestAgeDays(b);
+        if (sortBy === "price_asc") return (a.price_eur_min ?? 1e12) - (b.price_eur_min ?? 1e12);
+        if (sortBy === "price_desc") return (b.price_eur_min ?? -1) - (a.price_eur_min ?? -1);
+        if (sortBy === "area_desc") return (b.area_sqm ?? -1) - (a.area_sqm ?? -1);
+        return (b.offers_count - a.offers_count) || ((a.price_eur_min ?? 1e12) - (b.price_eur_min ?? 1e12));
+      });
+
+      document.getElementById("resultsInfo").textContent = `Показани: ${list.length} от ${allProperties.length} имота`;
+      saveFilters();
+
+      document.getElementById("grid").innerHTML = list.map(p => {
+        const priceStr = (p.price_eur_min != null && p.price_eur_max != null && p.price_eur_min !== p.price_eur_max)
+          ? `${fmtEur(p.price_eur_min)} – ${fmtEur(p.price_eur_max)}`
+          : fmtEur(p.price_eur_min);
+        const meta = [
+          p.property_type,
+          p.area_sqm ? `${p.area_sqm} кв.м` : null,
+          p.floor != null ? `ет. ${p.floor}${p.total_floors ? "/" + p.total_floors : ""}` : null,
+        ].filter(Boolean).join(" · ");
+
+        const imgs = p.images || [];
+        const imgHtml = imgs.length
+          ? `<img src="${imgs[0]}" data-idx="0" data-imgs='${JSON.stringify(imgs).replace(/'/g, "&apos;")}' alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>Няма снимка</div>'">${
+              imgs.length > 1
+                ? `<div class="img-nav"><button type="button" onclick="switchImg(this,-1)">‹</button><span>1/${imgs.length}</span><button type="button" onclick="switchImg(this,1)">›</button></div>`
+                : ""
+            }`
+          : `<div class="no-img">Няма снимка</div>`;
+
+        const linksHtml = (p.external_links || []).map(l => {
+          const srcClass = l.source.includes("imot.bg") ? "imot" : "";
+          const label = l.agency || (l.is_private ? "Частно лице" : l.source);
+          const dateBadge = l.published_raw ? `<span class="offer-date" title="Качена">${l.published_raw}</span>` : "";
+          return `
+            <a class="offer-link" href="${l.url}" target="_blank" rel="noopener noreferrer">
+              <span class="offer-left">
+                <span class="src-tag ${srcClass}">${l.source}</span>
+                <span class="agency-name" title="${label}">${label}</span>
+              </span>
+              <span class="offer-right">
+                ${dateBadge}
+                <span class="offer-price">${fmtEur(l.price_eur)} ↗</span>
+              </span>
+            </a>
+          `;
+        }).join("");
+
+        const mort = calcCcbMortgage(p.price_eur_min);
+        const mortHtml = mort
+          ? `<div class="mortgage-pill" title="ЦКБ „Дом за теб“: самоучастие ${mort.downPct}% (${fmtEur(mort.downEur)}), кредит ${fmtEur(mort.loanEur)}, ${mort.annualRate}% лихва, ${mort.years} г.">🏦 ЦКБ ~ ${fmtEur(mort.monthly)}/мес. <span>(самоуч. ${fmtEur(mort.downEur)})</span></div>`
+          : "";
+
+        return `
+          <article class="card ${p.is_merged ? "merged" : ""}" onclick="onCardClick(event, '${p.property_id}')">
+            <div class="thumb-wrap">
+              ${imgHtml}
+              <div class="badges">
+                <span class="badge ${p.region}">${p.region === "shumen" ? "Шумен" : "Варна"}</span>
+                ${p.is_merged ? `<span class="badge merged-badge">${p.offers_count} оферти · ${p.sources.length > 1 ? p.sources.length + " сайта" : p.agencies.length + " агенции"}</span>` : ""}
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="price-row">
+                <div class="price">${priceStr}</div>
+                <div class="meta-inline">${meta}</div>
+              </div>
+              ${mortHtml}
+              <div class="title">${p.title}</div>
+              <div class="location">${[p.municipality ? "общ. " + p.municipality : "", p.city, p.neighborhood].filter(Boolean).join(" · ") || p.location_raw}</div>
+              ${p.description ? `<div class="desc">${p.description}</div>` : ""}
+              ${p.is_merged && p.merge_reasons?.length ? `<div class="reasons">Слято по: ${p.merge_reasons.join(", ")}</div>` : ""}
+              <div class="links-box">
+                <div class="links-title">Външни линкове (${p.external_links.length})</div>
+                ${linksHtml}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function switchImg(btn, delta) {
+      const wrap = btn.closest(".thumb-wrap");
+      const img = wrap.querySelector("img");
+      const span = wrap.querySelector(".img-nav span");
+      const imgs = JSON.parse(img.getAttribute("data-imgs") || "[]");
+      if (imgs.length < 2) return;
+      let idx = (parseInt(img.getAttribute("data-idx") || "0", 10) + delta + imgs.length) % imgs.length;
+      img.setAttribute("data-idx", String(idx));
+      img.src = imgs[idx];
+      span.textContent = `${idx + 1}/${imgs.length}`;
+    }
+
+    function escHtml(s) {
+      return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function onCardClick(ev, propId) {
+      if (ev.target.closest("a, button")) return;
+      openDetailModal(propId);
+    }
+
+    function calcClosingCosts(priceEur, region, includeCommission = true) {
+      if (priceEur == null || priceEur <= 0) return null;
+      const mort = calcCcbMortgage(priceEur);
+      const localTaxPct = region === "varna" ? 3.0 : 2.8; // Община Варна 3.0%, Община Шумен 2.8%
+      const localTax = Math.round(priceEur * (localTaxPct / 100));
+      const commissionPct = includeCommission ? 3.6 : 0;  // 3% + 20% ДДС = 3.6%
+      const commission = Math.round(priceEur * (commissionPct / 100));
+      // Нотариални такси (продажба + ипотека с ДДС, ориентировъчно по тарифата)
+      const notarySale = Math.min(3600, Math.max(250, Math.round(priceEur * 0.006 + 180)));
+      const notaryMortgage = mort ? Math.min(1800, Math.max(150, Math.round(mort.loanEur * 0.003 + 120))) : 0;
+      const notaryTotal = notarySale + notaryMortgage;
+      // Агенция по вписванията: 0.1% продажба + 0.1% ипотека
+      const registryFee = Math.max(20, Math.round(priceEur * 0.001 + (mort ? mort.loanEur * 0.001 : 0)));
+      // Оценка на имот, удостоверение за тежести, банкови документи (ЦКБ)
+      const bankAndDocs = 350;
+
+      const extraTotal = localTax + commission + notaryTotal + registryFee + bankAndDocs;
+      const finalPrice = Math.round(priceEur + extraTotal);
+      const cashNeeded = mort ? Math.round(mort.downEur + extraTotal) : finalPrice;
+
+      return {
+        priceEur: Math.round(priceEur),
+        localTaxPct,
+        localTax,
+        commissionPct,
+        commission,
+        notaryTotal,
+        registryFee,
+        bankAndDocs,
+        extraTotal,
+        extraPct: ((extraTotal / priceEur) * 100).toFixed(1),
+        finalPrice,
+        cashNeeded,
+        mort,
+      };
+    }
+
+    function onModalMortgageChange(propId, field, val) {
+      document.getElementById(field).value = val;
+      saveFilters();
+      renderGrid();
+      const cb = document.getElementById("modalCommCheck");
+      const inc = cb ? cb.checked : true;
+      const box = document.getElementById("costBox");
+      if (box) box.outerHTML = renderCostBreakdownHtml(propId, inc);
+      // Also update mortgage row cells in comparison table
+      const p = allProperties.find(x => x.property_id === propId);
+      if (p) {
+        const mortRow = document.querySelector("#modalBody tr[data-row='ccb_mort']");
+        if (mortRow) {
+          const tds = mortRow.querySelectorAll("td");
+          (p.external_links || []).forEach((o, i) => {
+            if (tds[i + 1]) {
+              const m = calcCcbMortgage(o.price_eur);
+              tds[i + 1].textContent = m ? `~ ${fmtEur(m.monthly)}/мес. (самоуч. ${fmtEur(m.downEur)}, кредит ${fmtEur(m.loanEur)})` : "—";
+            }
+          });
+        }
+      }
+    }
+
+    function renderCostBreakdownHtml(propId, includeCommission) {
+      const p = allProperties.find(x => x.property_id === propId);
+      if (!p || p.price_eur_min == null) return "";
+      const c = calcClosingCosts(p.price_eur_min, p.region, includeCommission);
+      if (!c) return "";
+      const curDown = document.getElementById("ccbDown")?.value ?? "15";
+      const curRate = document.getElementById("ccbRate")?.value ?? "2.8";
+      const curYears = document.getElementById("ccbYears")?.value ?? "30";
+      return `
+        <div class="cost-box" id="costBox">
+          <div class="cost-head">
+            <h3>💰 Пълна разбивка на цената и скритите разходи (ориентировъчно)</h3>
+            <label class="cost-toggle">
+              <input type="checkbox" id="modalCommCheck" ${includeCommission ? "checked" : ""} onchange="document.getElementById('costBox').outerHTML = renderCostBreakdownHtml('${escHtml(propId)}', this.checked)" />
+              Включи комисиона на агенция (3% + ДДС = 3.6%)
+            </label>
+          </div>
+          <div class="ccb-bar">
+            <strong>🏦 ЦКБ ипотека (променяй на живо):</strong>
+            <label>Самоучастие <input type="number" value="${escHtml(curDown)}" min="0" max="80" step="1" oninput="onModalMortgageChange('${escHtml(propId)}','ccbDown',this.value)" />%</label>
+            <label>Лихва <input type="number" value="${escHtml(curRate)}" min="0.5" max="15" step="0.1" oninput="onModalMortgageChange('${escHtml(propId)}','ccbRate',this.value)" />%</label>
+            <label>Срок <input type="number" value="${escHtml(curYears)}" min="5" max="35" step="1" oninput="onModalMortgageChange('${escHtml(propId)}','ccbYears',this.value)" />г.</label>
+          </div>
+          <div class="cost-grid">
+            <div class="cost-item"><span class="c-lbl">Обявена цена</span><span class="c-val">${fmtEur(c.priceEur)}</span></div>
+            <div class="cost-item"><span class="c-lbl">Местен данък (${p.region === "varna" ? "Варна" : "Шумен"} ${c.localTaxPct}%)</span><span class="c-val">${fmtEur(c.localTax)}</span></div>
+            <div class="cost-item"><span class="c-lbl">Комисиона агенция (${c.commissionPct}%)</span><span class="c-val">${fmtEur(c.commission)}</span></div>
+            <div class="cost-item"><span class="c-lbl">Нотариус (сделка + ипотека с ДДС)</span><span class="c-val">~ ${fmtEur(c.notaryTotal)}</span></div>
+            <div class="cost-item"><span class="c-lbl">Вписване Агенция по вписванията (0.2%)</span><span class="c-val">${fmtEur(c.registryFee)}</span></div>
+            <div class="cost-item"><span class="c-lbl">Оценка, тежести и банкови такси (ЦКБ)</span><span class="c-val">~ ${fmtEur(c.bankAndDocs)}</span></div>
+          </div>
+          <div class="cost-totals">
+            <div class="cost-total-card">
+              <div class="t-lbl">Общо скрити разходи</div>
+              <div class="t-val">+ ${fmtEur(c.extraTotal)}</div>
+              <div class="t-sub">+${c.extraPct}% над обявената цена</div>
+            </div>
+            <div class="cost-total-card cash">
+              <div class="t-lbl">Нужни пари в брой (кеш на ръка)</div>
+              <div class="t-val">${fmtEur(c.cashNeeded)}</div>
+              <div class="t-sub">${c.mort ? `Самоуч. ${fmtEur(c.mort.downEur)} (${c.mort.downPct}%) + разходи ${fmtEur(c.extraTotal)}` : "100% покупка без кредит"}</div>
+            </div>
+            <div class="cost-total-card final">
+              <div class="t-lbl">Реална крайна цена</div>
+              <div class="t-val">${fmtEur(c.finalPrice)}</div>
+              <div class="t-sub">${c.mort ? `Кредит ЦКБ: ${fmtEur(c.mort.loanEur)} · ~${fmtEur(c.mort.monthly)}/мес. (${c.mort.years} г.)` : ""}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function openDetailModal(propId) {
+      const p = allProperties.find(x => x.property_id === propId);
+      if (!p) return;
+
+      const offers = p.external_links || [];
+      const priceStr = (p.price_eur_min != null && p.price_eur_max != null && p.price_eur_min !== p.price_eur_max)
+        ? `${fmtEur(p.price_eur_min)} – ${fmtEur(p.price_eur_max)}`
+        : fmtEur(p.price_eur_min);
+
+      document.getElementById("modalTitle").textContent = p.title;
+      document.getElementById("modalSub").textContent =
+        `${[p.municipality ? "общ. " + p.municipality : "", p.city, p.neighborhood].filter(Boolean).join(" · ")} · ${priceStr} · ${offers.length} ${offers.length === 1 ? "обява" : "обяви"}`;
+
+      const galleryHtml = (p.images && p.images.length)
+        ? `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+             <span style="font-size:0.8rem;font-weight:700;color:var(--muted)">СНИМКИ (${offers.length > 1 ? "кликни за общ или отделен изглед" : "кликни за голям екран"})</span>
+             ${offers.length > 1 ? `<button type="button" class="cmp-photo-btn" onclick="openCombinedGallery('${escHtml(p.property_id)}', -1, this)">🖼️ Обща галерия от всички сайтове</button>` : ""}
+           </div>
+           <div class="modal-gallery">${p.images.map((u, idx) => `<img src="${escHtml(u)}" alt="" loading="lazy" style="cursor:pointer" onclick="openCombinedGallery('${escHtml(p.property_id)}', -1)">`).join("")}</div>`
+        : "";
+
+      // Compute lowest price across offers for green highlight
+      const validPrices = offers.map(o => o.price_eur).filter(v => v != null);
+      const minOfferPrice = validPrices.length ? Math.min(...validPrices) : null;
+      const hasPriceDiff = new Set(validPrices.map(v => Math.round(v))).size > 1;
+
+      const rows = [
+        { label: "Сайт", get: o => o.source || "—", checkDiff: false },
+        { label: "Агенция / Подател", get: o => o.agency || (o.is_private ? "Частно лице" : "—"), checkDiff: true },
+        { label: "Цена (€)", get: o => fmtEur(o.price_eur), raw: o => o.price_eur != null ? Math.round(o.price_eur) : null, isPrice: true, checkDiff: true },
+        {
+          label: "ЦКБ вноска / мес.",
+          rowKey: "ccb_mort",
+          get: o => {
+            const m = calcCcbMortgage(o.price_eur);
+            return m ? `~ ${fmtEur(m.monthly)}/мес. (самоуч. ${fmtEur(m.downEur)}, кредит ${fmtEur(m.loanEur)})` : "—";
+          },
+          raw: o => { const m = calcCcbMortgage(o.price_eur); return m ? m.monthly : null; },
+          checkDiff: true,
+        },
+        { label: "Площ (кв.м)", get: o => o.area_sqm != null ? `${o.area_sqm} кв.м` : "—", raw: o => o.area_sqm, checkDiff: true },
+        { label: "Двор (кв.м)", get: o => o.yard_sqm != null ? `${o.yard_sqm} кв.м` : "—", raw: o => o.yard_sqm, checkDiff: true },
+        { label: "Етаж", get: o => o.floor != null ? `${o.floor}${o.total_floors ? " от " + o.total_floors : ""}` : "—", raw: o => o.floor, checkDiff: true },
+        { label: "Строителство", get: o => o.construction_type || "—", raw: o => o.construction_type || null, checkDiff: true },
+        { label: "Година", get: o => o.year_built || "—", raw: o => o.year_built, checkDiff: true },
+        { label: "Телефон", get: o => o.phone || "—", raw: o => o.phone || null, checkDiff: true },
+        {
+          label: "Снимки",
+          get: (o, idx) => {
+            const thumb = o.image_url ? `<img class="cmp-mini-thumb" src="${escHtml(o.image_url)}" alt="" onclick="openCombinedGallery('${escHtml(p.property_id)}', ${idx})">` : "";
+            const cntLabel = o.photos_count ? `📷 Преглед (${o.photos_count} бр.)` : "📷 Зареди снимки";
+            return `<div class="cmp-photo-cell">${thumb}<button type="button" class="cmp-photo-btn" onclick="openCombinedGallery('${escHtml(p.property_id)}', ${idx}, this)">${cntLabel}</button></div>`;
+          },
+          raw: o => o.photos_count || null,
+          isHtml: true,
+          checkDiff: true,
+        },
+        { label: "Качена на", get: o => o.published_raw || "—", raw: o => o.published_raw || null, checkDiff: true },
+        { label: "Заглавие", get: o => o.title || "—", checkDiff: false },
+        { label: "Описание", get: o => o.description || "—", isDesc: true, checkDiff: false },
+        { label: "Отвори обявата", get: o => `<a class="cmp-open-btn" href="${escHtml(o.url)}" target="_blank" rel="noopener noreferrer">Към ${escHtml(o.source)} ↗</a>`, isHtml: true, checkDiff: false },
+      ];
+
+      const headerCols = offers.map((o, idx) =>
+        `<th>Оферта #${idx + 1}<br><span style="font-weight:500;color:var(--accent)">${escHtml(o.source)}</span></th>`
+      ).join("");
+
+      const bodyRows = rows.map(r => {
+        const vals = offers.map(o => (r.raw ? r.raw(o) : r.get(o)));
+        const nonEmpty = vals.filter(v => v !== null && v !== undefined && v !== "" && v !== "—");
+        const isDiff = offers.length > 1 && r.checkDiff && new Set(nonEmpty.map(v => String(v).toLowerCase())).size > 1;
+
+        const cells = offers.map((o, idx) => {
+          const disp = r.isHtml ? r.get(o, idx) : escHtml(r.get(o, idx));
+          const isBestPrice = r.isPrice && hasPriceDiff && o.price_eur != null && Math.round(o.price_eur) === Math.round(minOfferPrice);
+          const cls = [isBestPrice ? "cell-best" : "", r.isDesc ? "cmp-desc" : ""].filter(Boolean).join(" ");
+          return `<td class="${cls}">${disp}</td>`;
+        }).join("");
+
+        return `<tr class="${isDiff ? "row-diff" : ""}"${r.rowKey ? ` data-row="${r.rowKey}"` : ""}><td>${escHtml(r.label)}${isDiff ? `<span class="diff-tag">Разлика</span>` : ""}</td>${cells}</tr>`;
+      }).join("");
+
+      const legendHtml = offers.length > 1
+        ? `<div class="diff-legend">
+             <span class="legend-pill diff">⚡ Разлика между обявите</span>
+             <span class="legend-pill best">★ Най-ниска цена</span>
+             ${p.merge_reasons?.length ? `<span>Слято по: ${escHtml(p.merge_reasons.join(", "))}</span>` : ""}
+           </div>`
+        : "";
+
+      const allPrivate = offers.length > 0 && offers.every(o => o.is_private === true);
+      const costHtml = renderCostBreakdownHtml(propId, !allPrivate);
+
+      document.getElementById("modalBody").innerHTML = `
+        ${galleryHtml}
+        ${costHtml}
+        ${legendHtml}
+        <div class="cmp-wrap">
+          <table class="cmp-table">
+            <thead><tr><th>Поле</th>${headerCols}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById("detailModal").classList.add("open");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detailModal").classList.remove("open");
+    }
+
+    // Lightbox with separate per-offer tabs + combined "all with badges" view
+    let lbGroups = [];      // [{ label, shortTag, photos: [{url, badge, shortTag}] }]
+    let lbActiveTab = -1;   // -1 = all combined, 0..N = specific offer
+    let lbPhotos = [];
+    let lbIndex = 0;
+
+    function selectLbTab(tabIdx) {
+      lbActiveTab = tabIdx;
+      lbPhotos = tabIdx === -1
+        ? lbGroups.flatMap(g => g.photos)
+        : (lbGroups[tabIdx]?.photos || []);
+      lbIndex = 0;
+      renderLightbox();
+    }
+
+    function renderLightbox() {
+      const tabsEl = document.getElementById("lbTabs");
+      const totalAll = lbGroups.reduce((acc, g) => acc + g.photos.length, 0);
+      if (lbGroups.length > 1) {
+        tabsEl.innerHTML = [
+          `<button type="button" class="lb-tab ${lbActiveTab === -1 ? "active" : ""}" onclick="selectLbTab(-1)">Всички заедно (${totalAll})</button>`,
+          ...lbGroups.map((g, i) =>
+            `<button type="button" class="lb-tab ${lbActiveTab === i ? "active" : ""}" onclick="selectLbTab(${i})">${escHtml(g.label)} (${g.photos.length})</button>`
+          ),
+        ].join("");
+      } else {
+        tabsEl.innerHTML = "";
+      }
+
+      if (!lbPhotos.length) {
+        document.getElementById("lbImg").src = "";
+        document.getElementById("lbBadge").textContent = "";
+        document.getElementById("lbCaption").textContent = "Няма снимки за тази оферта";
+        document.getElementById("lbThumbs").innerHTML = "";
+        return;
+      }
+
+      const cur = lbPhotos[lbIndex];
+      document.getElementById("lbImg").src = cur.url;
+      document.getElementById("lbBadge").textContent = cur.badge;
+      document.getElementById("lbCaption").textContent = `${cur.badge} · ${lbIndex + 1} / ${lbPhotos.length}`;
+      document.getElementById("lbThumbs").innerHTML = lbPhotos.map((item, i) =>
+        `<div class="lb-thumb-wrap" onclick="lbIndex=${i};renderLightbox()">
+           <img src="${escHtml(item.url)}" class="${i === lbIndex ? "active" : ""}" loading="lazy">
+           ${lbActiveTab === -1 ? `<span class="lb-thumb-tag">${escHtml(item.shortTag)}</span>` : ""}
+         </div>`
+      ).join("");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox").classList.remove("open");
+    }
+
+    async function openCombinedGallery(propId, initialTab = -1, btnEl = null) {
+      const p = allProperties.find(x => x.property_id === propId);
+      if (!p) return;
+      const offers = p.external_links || [];
+      const prevText = btnEl ? btnEl.textContent : "";
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = "⏳ Зареждане..."; }
+
+      try {
+        const fetched = await Promise.all(offers.map(async (o, i) => {
+          const shortTag = o.source;
+          const label = `#${i + 1} ${o.source}${o.agency ? " · " + o.agency.slice(0, 22) : ""}`;
+          const badge = `${o.source}${o.agency ? " · " + o.agency : ""}`;
+          try {
+            const r = await fetch("/api/photos?url=" + encodeURIComponent(o.url));
+            const d = await r.json();
+            const urls = (d.photos && d.photos.length) ? d.photos : (o.image_url ? [o.image_url] : []);
+            return { label, shortTag, photos: urls.map(u => ({ url: u, badge, shortTag })) };
+          } catch (_) {
+            const urls = o.image_url ? [o.image_url] : [];
+            return { label, shortTag, photos: urls.map(u => ({ url: u, badge, shortTag })) };
+          }
+        }));
+
+        lbGroups = fetched;
+        const tabToOpen = (initialTab >= 0 && initialTab < lbGroups.length) ? initialTab : (lbGroups.length > 1 ? -1 : 0);
+        selectLbTab(tabToOpen);
+        document.getElementById("lightbox").classList.add("open");
+      } finally {
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = prevText; }
+      }
+    }
+
+    document.getElementById("lbClose").addEventListener("click", closeLightbox);
+    document.getElementById("lbPrev").addEventListener("click", () => {
+      if (!lbPhotos.length) return;
+      lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length;
+      renderLightbox();
+    });
+    document.getElementById("lbNext").addEventListener("click", () => {
+      if (!lbPhotos.length) return;
+      lbIndex = (lbIndex + 1) % lbPhotos.length;
+      renderLightbox();
+    });
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+      if (e.target.id === "lightbox") closeLightbox();
+    });
+
+    document.getElementById("modalClose").addEventListener("click", closeDetailModal);
+    document.getElementById("detailModal").addEventListener("click", (e) => {
+      if (e.target.id === "detailModal") closeDetailModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (document.getElementById("lightbox").classList.contains("open")) {
+        if (e.key === "Escape") closeLightbox();
+        else if (e.key === "ArrowLeft") { lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length; renderLightbox(); }
+        else if (e.key === "ArrowRight") { lbIndex = (lbIndex + 1) % lbPhotos.length; renderLightbox(); }
+        return;
+      }
+      if (e.key === "Escape") closeDetailModal();
+    });
+
+    async function loadListings(keepFilters = false) {
+      const res = await fetch("/data/listings.json?t=" + Date.now());
+      const data = await res.json();
+      allProperties = data.properties || [];
+      referenceNeighborhoods = data.reference_neighborhoods || {};
+      document.getElementById("updatedAt").textContent = "Обновено: " + new Date(data.generated_at).toLocaleString("bg-BG");
+      renderStats(data.summary || {});
+
+      const sel = document.getElementById("propType");
+      const prevType = sel.value;
+      sel.innerHTML = `<option value="">Всички типове</option>`;
+      const types = [...new Set(allProperties.map(p => p.property_type).filter(Boolean))].sort((a, b) => a.localeCompare(b, "bg"));
+      types.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t; opt.textContent = t;
+        sel.appendChild(opt);
+      });
+      if (keepFilters && prevType) sel.value = prevType;
+
+      updateCascadeOptions("init");
+      if (!keepFilters) restoreFilters();
+      else restoreFilters();
+      renderGrid();
+    }
+
+    async function triggerScrape() {
+      const btn = document.getElementById("scrapeBtn");
+      const st = document.getElementById("scrapeStatus");
+      const isLocal = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+      if (!isLocal) {
+        st.textContent = "🔄 Презареждане на последните данни...";
+        await loadListings(true);
+        st.textContent = "✅ Данните са презаредени (автоматично скрейпване през GitHub Actions)";
+        return;
+      }
+      const region = document.getElementById("region").value;
+      btn.disabled = true;
+      btn.textContent = "⏳ Обновяване...";
+      st.textContent = region ? `Скрейпване за ${region === "shumen" ? "Шумен" : "Варна"}...` : "Скрейпване за Шумен и Варна...";
+
+      try {
+        const res = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ region, pages: 1 }),
+        });
+        if (!res.ok && res.status !== 409) throw new Error("Грешка при стартиране.");
+
+        const poll = setInterval(async () => {
+          const sr = await fetch("/api/scrape/status?t=" + Date.now());
+          const info = await sr.json();
+          if (!info.running) {
+            clearInterval(poll);
+            btn.disabled = false;
+            btn.textContent = "🔄 Обнови обявите";
+            if (info.last_status === "ok") {
+              st.textContent = "✅ Обявите са обновени";
+              await loadListings(true);
+            } else {
+              st.textContent = "⚠️ Грешка при обновяване";
+            }
+          }
+        }, 2500);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "🔄 Обнови обявите";
+        st.textContent = "⚠️ Сървърът не отговаря";
+      }
+    }
+
+    async function init() {
+      await loadListings(false);
+      document.getElementById("scrapeBtn").addEventListener("click", triggerScrape);
+
+      document.getElementById("region").addEventListener("change", () => {
+        updateCascadeOptions("region");
+        renderGrid();
+      });
+      document.getElementById("municipality").addEventListener("change", () => {
+        updateCascadeOptions("municipality");
+        renderGrid();
+      });
+      document.getElementById("city").addEventListener("change", () => {
+        updateCascadeOptions("city");
+        renderGrid();
+      });
+      document.getElementById("neighborhood").addEventListener("change", renderGrid);
+
+      ["q", "propType", "minPrice", "maxPrice", "maxAge", "sortBy", "ccbDown", "ccbRate", "ccbYears"].forEach(id => {
+        document.getElementById(id).addEventListener("input", renderGrid);
+        document.getElementById(id).addEventListener("change", renderGrid);
+      });
+      document.getElementById("onlyMerged").addEventListener("click", (e) => {
+        onlyMerged = !onlyMerged;
+        e.target.classList.toggle("active", onlyMerged);
+        renderGrid();
+      });
+      document.getElementById("resetFilters").addEventListener("click", () => {
+        document.getElementById("q").value = "";
+        document.getElementById("region").value = "";
+        document.getElementById("propType").value = "";
+        document.getElementById("minPrice").value = "";
+        document.getElementById("maxPrice").value = "";
+        document.getElementById("maxAge").value = "";
+        document.getElementById("sortBy").value = "merged";
+        onlyMerged = false;
+        selectedSource = "";
+        document.getElementById("onlyMerged").classList.remove("active");
+        try { localStorage.removeItem(FILTERS_STORAGE_KEY); } catch (_) {}
+        updateCascadeOptions("region");
+        renderGrid();
+      });
+
+      renderGrid();
+    }
+    init();
+  </script>
+</body>
+</html>
